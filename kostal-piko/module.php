@@ -224,15 +224,19 @@ class kostalPico extends IPSModule {
         foreach($arr['dxsEntries'] as $entry){
             switch($entry['dxsId']){
                 case dxsEntry::powerStatus:
-                    //0:Off, 1:Leerlauf, 2:Anfahren, 3:Einspeisen MPP, 4:Abgeregelt, 5:Einspeisen
                     $val = '';
                     switch(intval($entry['value'])){
-                        case 0: $val = 'Aus'; break;
-                        case 1: $val = 'Leerlauf'; break;
-                        case 2: $val = 'Anfahren'; break;
-                        case 3: $val = 'Einspeisen (MPP)'; break;
-                        case 4: $val = 'Abgeregelt'; break;
-                        case 5: $val = 'Einspeisen'; break;
+                        case 0:
+                        case 1:
+                        case 2:
+                        case 3:
+                        case 4:
+                        case 5:
+                            $val = $this->Translate("varPowerStatus".intval($entry['value']));
+                            break;
+                        default:
+                            $val = 'unknown ('.$entry['value'].')';
+                            break;
                     }
                     SetValue($this->GetIDForIdent("powerStatus"), $val);
                     break;
