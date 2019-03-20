@@ -230,7 +230,7 @@ class kostalPico extends IPSModule {
                         case 0: $val = 'Aus'; break;
                         case 1: $val = 'Leerlauf'; break;
                         case 2: $val = 'Anfahren'; break;
-                        case 3: $val = 'Einspeisen MPP'; break;
+                        case 3: $val = 'Einspeisen (MPP)'; break;
                         case 4: $val = 'Abgeregelt'; break;
                         case 5: $val = 'Einspeisen'; break;
                     }
