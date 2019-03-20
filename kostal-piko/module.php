@@ -69,9 +69,11 @@ class kostalPico extends IPSModule {
             $this->RegisterVariableFloat("outputDay", $this->Translate("varOutputDay"), "~Electricity", 4);
 
             switch ($this->getModelLineCount()){
+                /** @noinspection PhpMissingBreakStatementInspection */
                 case 3:
                     $this->RegisterVariableFloat("l3Voltage", $this->Translate("varL3Voltage"), "~Volt", 9);
                     $this->RegisterVariableFloat("l3Power", $this->Translate("varL3Power"), "~Watt.3680", 10);
+                /** @noinspection PhpMissingBreakStatementInspection */
                 case 2:
                     $this->RegisterVariableFloat("l2Voltage", $this->Translate("varL2Voltage"), "~Volt", 7);
                     $this->RegisterVariableFloat("l2Power", $this->Translate("varL2Power"), "~Watt.3680", 8);
@@ -82,9 +84,11 @@ class kostalPico extends IPSModule {
             }
 
             switch($this->getModelStringCount()){
+                /** @noinspection PhpMissingBreakStatementInspection */
                 case 3:
                     $this->RegisterVariableFloat("s3Voltage", $this->Translate("varS3Voltage"), "~Volt", 15);
                     $this->RegisterVariableFloat("s3Current", $this->Translate("varS3Current"), "~Ampere", 16);
+                /** @noinspection PhpMissingBreakStatementInspection */
                 case 2:
                     $this->RegisterVariableFloat("s2Voltage", $this->Translate("varS2Voltage"), "~Volt", 13);
                     $this->RegisterVariableFloat("s2Current", $this->Translate("varS2Current"), "~Ampere", 14);
@@ -125,9 +129,11 @@ class kostalPico extends IPSModule {
                 $dxsEntries[] = dxsEntry::outputAll;
                 $dxsEntries[] = dxsEntry::outputDay;
                 switch($this->getModelLineCount()){
+                    /** @noinspection PhpMissingBreakStatementInspection */
                     case 3:
                         $dxsEntries[] = dxsEntry::l3Voltage;
                         $dxsEntries[] = dxsEntry::l3Power;
+                    /** @noinspection PhpMissingBreakStatementInspection */
                     case 2:
                         $dxsEntries[] = dxsEntry::l2Voltage;
                         $dxsEntries[] = dxsEntry::l2Power;
@@ -137,9 +143,11 @@ class kostalPico extends IPSModule {
                         break;
                 }
                 switch ($this->getModelStringCount()){
+                    /** @noinspection PhpMissingBreakStatementInspection */
                     case 3:
                         $dxsEntries[] = dxsEntry::s3Voltage;
                         $dxsEntries[] = dxsEntry::s3Current;
+                    /** @noinspection PhpMissingBreakStatementInspection */
                     case 2:
                         $dxsEntries[] = dxsEntry::s2Voltage;
                         $dxsEntries[] = dxsEntry::s2Current;
@@ -373,7 +381,6 @@ class kostalPico extends IPSModule {
         foreach($arr['dxsEntries'] as $entry){
             switch($entry['dxsId']){
                 case dxsEntry::powerStatus:
-                    $val = '';
                     switch(intval($entry['value'])){
                         case 0:
                         case 1:
@@ -381,13 +388,12 @@ class kostalPico extends IPSModule {
                         case 3:
                         case 4:
                         case 5:
-                            $val = $this->Translate("varPowerStatus".intval($entry['value']));
+                            SetValue($this->GetIDForIdent("powerStatus"), $this->Translate("varPowerStatus".intval($entry['value'])));
                             break;
                         default:
-                            $val = 'unknown ('.$entry['value'].')';
+                            SetValue($this->GetIDForIdent("powerStatus"), 'unknown ('.$entry['value'].')');
                             break;
                     }
-                    SetValue($this->GetIDForIdent("powerStatus"), $val);
                     break;
                 case dxsEntry::powerActual:
                     SetValue($this->GetIDForIdent("powerActual"), floatval($entry['value']));
