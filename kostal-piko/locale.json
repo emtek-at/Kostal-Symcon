@@ -1,13 +1,15 @@
 {
   "translations": {
     "de": {
+      "formModel": "Model",
       "formHost": "Host/IP",
       "formUser": "Benutzername",
       "formPassword": "Passwort",
       "formStatusTimer": "getStatus Intervall Sek.",
-      "form201": "Host nicht angegeben",
-      "form202": "Benutzername nicht angegeben",
-      "form203": "Passwort nicht angegeben",
+      "form201": "Model nicht angegeben",
+      "form202": "Host nicht angegeben",
+      "form203": "Benutzername nicht angegeben",
+      "form204": "Passwort nicht angegeben",
       "varPowerActual": "AC Leistung Aktuell",
       "varPowerStatus": "Status",
       "varPowerStatus0": "Aus",
@@ -32,13 +34,15 @@
       "varS3Current": "String 3 Strom"
     },
     "en": {
+      "formModel": "Model",
       "formHost": "Host/IP",
       "formUser": "username",
       "formPassword": "password",
       "formStatusTimer": "getStatus intervall sec.",
-      "form201": "Host is not set",
-      "form202": "username is not set",
-      "form203": "password is not set",
+      "form201": "Model is not set",
+      "form202": "Host is not set",
+      "form203": "username is not set",
+      "form204": "password is not set",
       "varPowerActual": "AC Actual Power",
       "varPowerStatus": "Status",
       "varPowerStatus0": "off",
