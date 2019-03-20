@@ -3,12 +3,12 @@
   [
     { "type": "ValidationTextBox", "name": "host", "caption": "formHost" },
     { "type": "ValidationTextBox", "name": "user", "caption": "formUser" },
-    { "type": "ValidationTextBox", "name": "password", "caption": "formPassword" },
+    { "type": "PasswordTextBox", "name": "password", "caption": "formPassword" },
     { "type": "NumberSpinner", "name": "statusTimer", "caption": "formStatusTimer" }
   ],
   "actions":
   [
-    { "type": "Button", "label": "Init Device", "onClick": "KostalP_getStatus($id);" }
+    { "type": "Button", "label": "get Status", "onClick": "KostalP_getStatus($id);" }
   ],
   "status":
   [

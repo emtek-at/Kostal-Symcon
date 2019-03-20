@@ -64,17 +64,17 @@ class kostalPico extends IPSModule {
             $this->RegisterVariableFloat("outputAll", $this->Translate("varOutputAll"), "~Electricity", 3);
             $this->RegisterVariableFloat("outputDay", $this->Translate("varOutputDay"), "~Electricity", 4);
 
-            $this->RegisterVariableFloat("l1Voltage", $this->Translate("varL1Voltage"), "~Volt", 4);
-            $this->RegisterVariableFloat("l1Power", $this->Translate("varL1Power"), "~Watt.3680", 5);
-            $this->RegisterVariableFloat("l2Voltage", $this->Translate("varL2Voltage"), "~Volt", 6);
-            $this->RegisterVariableFloat("l2Power", $this->Translate("varL2Power"), "~Watt.3680", 7);
-            $this->RegisterVariableFloat("l3Voltage", $this->Translate("varL3Voltage"), "~Volt", 8);
-            $this->RegisterVariableFloat("l3Power", $this->Translate("varL3Power"), "~Watt.3680", 9);
+            $this->RegisterVariableFloat("l1Voltage", $this->Translate("varL1Voltage"), "~Volt", 5);
+            $this->RegisterVariableFloat("l1Power", $this->Translate("varL1Power"), "~Watt.3680", 6);
+            $this->RegisterVariableFloat("l2Voltage", $this->Translate("varL2Voltage"), "~Volt", 7);
+            $this->RegisterVariableFloat("l2Power", $this->Translate("varL2Power"), "~Watt.3680", 8);
+            $this->RegisterVariableFloat("l3Voltage", $this->Translate("varL3Voltage"), "~Volt", 9);
+            $this->RegisterVariableFloat("l3Power", $this->Translate("varL3Power"), "~Watt.3680", 10);
 
-            $this->RegisterVariableFloat("s1Voltage", $this->Translate("varS1Voltage"), "~Volt", 10);
-            $this->RegisterVariableFloat("s1Current", $this->Translate("varS1Current"), "~Ampere", 11);
-            $this->RegisterVariableFloat("s2Voltage", $this->Translate("varS2Voltage"), "~Volt", 12);
-            $this->RegisterVariableFloat("s2Current", $this->Translate("varS2Current"), "~Ampere", 13);
+            $this->RegisterVariableFloat("s1Voltage", $this->Translate("varS1Voltage"), "~Volt", 11);
+            $this->RegisterVariableFloat("s1Current", $this->Translate("varS1Current"), "~Ampere", 12);
+            $this->RegisterVariableFloat("s2Voltage", $this->Translate("varS2Voltage"), "~Volt", 13);
+            $this->RegisterVariableFloat("s2Current", $this->Translate("varS2Current"), "~Ampere", 14);
             //$this->RegisterVariableFloat("s3Voltage", $this->Translate("varS3Voltage"), "~Volt", 14);
             //$this->RegisterVariableFloat("s3Current", $this->Translate("varS3Current"), "~Ampere", 15);
 
@@ -224,7 +224,17 @@ class kostalPico extends IPSModule {
         foreach($arr['dxsEntries'] as $entry){
             switch($entry['dxsId']){
                 case dxsEntry::powerStatus:
-                    SetValue($this->GetIDForIdent("powerStatus"), ($entry['value']));
+                    //0:Off, 1:Leerlauf, 2:Anfahren, 3:Einspeisen MPP, 4:Abgeregelt, 5:Einspeisen
+                    $val = '';
+                    switch(intval($entry['value'])){
+                        case 0: $val = 'Aus'; break;
+                        case 1: $val = 'Leerlauf'; break;
+                        case 2: $val = 'Anfahren'; break;
+                        case 3: $val = 'Einspeisen MPP'; break;
+                        case 4: $val = 'Abgeregelt'; break;
+                        case 5: $val = 'Einspeisen'; break;
+                    }
+                    SetValue($this->GetIDForIdent("powerStatus"), $val);
                     break;
                 case dxsEntry::powerActual:
                     SetValue($this->GetIDForIdent("powerActual"), floatval($entry['value']));
