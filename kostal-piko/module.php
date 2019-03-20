@@ -21,6 +21,7 @@ abstract class dxsEntry
 
 // Klassendefinition
 class kostalPico extends IPSModule {
+    const debug = false;
 
     // Der Konstruktor des Moduls
     // Überschreibt den Standard Kontruktor von IPS
