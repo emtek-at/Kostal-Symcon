@@ -1,0 +1,11 @@
+{
+  "id": "{EACA26B9-4FE9-A1F2-33A4-DFDB829B1A1C}",
+  "name": "sinclair",
+  "type": 3,
+  "vendor": "Kostal",
+  "aliases": [ "Kostal Piko"],
+  "parentRequirements": [],
+  "childRequirements": [],
+  "implemented": [],
+  "prefix": "KostalP"
+}

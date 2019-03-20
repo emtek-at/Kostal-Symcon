@@ -1,0 +1,23 @@
+{
+  "elements":
+  [
+    { "type": "ValidationTextBox", "name": "host", "caption": "formHost" },
+    { "type":  "Select", "name": "fanSteps", "caption": "formFanSteps",
+      "options": [
+        { "caption": "formFanSteps3", "value": 3 },
+        { "caption": "formFanSteps5", "value": 5 },
+        { "caption": "formFanSteps7", "value": 7 }
+      ]},
+    { "type": "CheckBox", "name": "freshAir", "caption": "formFreshAir" },
+    { "type": "NumberSpinner", "name": "statusTimer", "caption": "formStatusTimer" }
+  ],
+  "actions":
+  [
+    { "type": "Button", "label": "Init Device", "onClick": "Sinclair_initDevice($id);" }
+  ],
+  "status":
+  [
+    { "code": 101, "icon": "active", "caption": "valid" },
+    { "code": 201, "icon": "error", "caption": "form201" }
+  ]
+}
