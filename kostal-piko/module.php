@@ -92,8 +92,8 @@ class kostalPico extends IPSModule {
     public function getStatus()
     {
         $host = $this->ReadPropertyString("host");
-        $user = $this->ReadPropertyInteger("user");
-        $password = $this->ReadPropertyBoolean("password");
+        $user = $this->ReadPropertyString("user");
+        $password = $this->ReadPropertyString("password");
         $url = 'http://'.$user.':'.$password.'@'.$host;
 
         $output = file_get_contents($url, "r");
