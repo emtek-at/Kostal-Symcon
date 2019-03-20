@@ -163,6 +163,9 @@ class kostalPico extends IPSModule {
     }
 
     private function parsePiko55(){
+        /*
+         * function is from https://github.com/hermanthegerman2/KostalPiko
+         */
         $host = $this->ReadPropertyString("host");
         $user = $this->ReadPropertyString("user");
         $password = $this->ReadPropertyString("password");
