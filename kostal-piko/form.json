@@ -2,22 +2,19 @@
   "elements":
   [
     { "type": "ValidationTextBox", "name": "host", "caption": "formHost" },
-    { "type":  "Select", "name": "fanSteps", "caption": "formFanSteps",
-      "options": [
-        { "caption": "formFanSteps3", "value": 3 },
-        { "caption": "formFanSteps5", "value": 5 },
-        { "caption": "formFanSteps7", "value": 7 }
-      ]},
-    { "type": "CheckBox", "name": "freshAir", "caption": "formFreshAir" },
+    { "type": "ValidationTextBox", "name": "user", "caption": "formUser" },
+    { "type": "ValidationTextBox", "name": "password", "caption": "formPassword" },
     { "type": "NumberSpinner", "name": "statusTimer", "caption": "formStatusTimer" }
   ],
   "actions":
   [
-    { "type": "Button", "label": "Init Device", "onClick": "Sinclair_initDevice($id);" }
+    { "type": "Button", "label": "Init Device", "onClick": "KostalP_getStatus($id);" }
   ],
   "status":
   [
     { "code": 101, "icon": "active", "caption": "valid" },
-    { "code": 201, "icon": "error", "caption": "form201" }
+    { "code": 201, "icon": "error", "caption": "form201" },
+    { "code": 202, "icon": "error", "caption": "form202" },
+    { "code": 203, "icon": "error", "caption": "form203" }
   ]
 }

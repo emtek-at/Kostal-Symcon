@@ -1,35 +1,26 @@
 <?
-abstract class Commands
+abstract class dxsEntry
 {
-    const none = '-1';
-    const scan = '0';
-    const bind = '1';
-    const status = '2';
-    const cmd = '3';
-}
-
-abstract class DeviceParam
-{
-    const Power = "Pow";
-    const Mode = "Mod";
-    const Fanspeed = "WdSpd";
-    const Swinger = "SwUpDn";
-    const SetTemperature = "SetTem";
-    const ActTemperature = "TemSen";
-    const OptXFan = "Blo";
-    const OptHealth = "Health";
-    const OptLight = "Lig";
-    const OptSleep1 = "SwhSlp";
-    const OptSleep2 = "SlpMod";
-    const OptEco = "SvSt";
-    const OptAir = "Air";
+    const powerStatus = "16780032";
+    const powerActual = "67109120";
+    const outputAll = "251658753";
+    const outputDay = "251658754";
+    const l1Voltage = "67109378";
+    const l1Power = "67109379";
+    const l2Voltage = "67109634";
+    const l2Power = "67109635";
+    const l3Voltage = "67109890";
+    const l3Power = "67109891";
+    const s1Voltage = "33555202";
+    const s1Current = "33555201";
+    const s2Voltage = "33555458";
+    const s2Current = "33555457";
+    const s3Voltage = "33555714";
+    const s3Current = "33555713";
 }
 
 // Klassendefinition
-class sinclair extends IPSModule {
-    const debug = false;
-    const defaultCryptKey = 'a3K8Bx%2r8Y7#xDh';
-
+class kostalPico extends IPSModule {
 
     // Der Konstruktor des Moduls
     // Überschreibt den Standard Kontruktor von IPS
@@ -44,14 +35,11 @@ class sinclair extends IPSModule {
         parent::Create();
 
         $this->RegisterPropertyString("host", "");
-        $this->RegisterPropertyInteger("fanSteps", 3);
-        $this->RegisterPropertyBoolean("freshAir", false);
-        $this->RegisterPropertyInteger("statusTimer", 60);
+        $this->RegisterPropertyString("user", "");
+        $this->RegisterPropertyString("password", "");
+        $this->RegisterPropertyInteger("statusTimer", 15);
 
-        $this->RegisterTimer("status_UpdateTimer", 0, 'Sinclair_getStatus($_IPS[\'TARGET\']);');
-
-
-        $this->RequireParent("{82347F20-F541-41E1-AC5B-A636FD3AE2D8}");
+        $this->RegisterTimer("status_UpdateTimer", 0, 'KostalP_getStatus($_IPS[\'TARGET\']);');
     }
 
     // Überschreibt die intere IPS_ApplyChanges($id) Funktion
@@ -60,120 +48,34 @@ class sinclair extends IPSModule {
         parent::ApplyChanges();
 
         $host = $this->ReadPropertyString("host");
-        $fanSteps = $this->ReadPropertyInteger("fanSteps");
-        $hasFreshAir = $this->ReadPropertyBoolean("freshAir");
-        if (strlen($host) > 0)
-        {
-            //Instanz ist aktiv
-            if(!IPS_VariableProfileExists('Sinclair.DeviceMode'))
-                IPS_CreateVariableProfile('Sinclair.DeviceMode', 1);
-            if(!IPS_VariableProfileExists('Sinclair.DeviceFan3'))
-                IPS_CreateVariableProfile('Sinclair.DeviceFan3', 1);
-            if(!IPS_VariableProfileExists('Sinclair.DeviceFan5'))
-                IPS_CreateVariableProfile('Sinclair.DeviceFan5', 1);
-            if(!IPS_VariableProfileExists('Sinclair.DeviceFan7'))
-                IPS_CreateVariableProfile('Sinclair.DeviceFan7', 1);
-            if(!IPS_VariableProfileExists('Sinclair.DeviceSwinger'))
-                IPS_CreateVariableProfile('Sinclair.DeviceSwinger', 1);
-            if(!IPS_VariableProfileExists('Sinclair.SetTemp'))
-                IPS_CreateVariableProfile('Sinclair.SetTemp', 1);
-            if(!IPS_VariableProfileExists('Sinclair.ActTemp'))
-                IPS_CreateVariableProfile('Sinclair.ActTemp', 1);
+        $user = $this->ReadPropertyInteger("user");
+        $password = $this->ReadPropertyBoolean("password");
 
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceMode', 0, $this->Translate("paDeviceMode-0"), 'Climate', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceMode', 1, $this->Translate("paDeviceMode-1"), 'Snowflake', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceMode', 2, $this->Translate("paDeviceMode-2"), 'Drops', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceMode', 3, $this->Translate("paDeviceMode-3"), 'Ventilation', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceMode', 4, $this->Translate("paDeviceMode-4"), 'Flame', -1);
+        if(strlen($host) == 0){
+            $this->SetStatus(201);
+        }else if(strlen($user) == 0){
+            $this->SetStatus(202);
+        }else if(strlen($password) == 0){
+            $this->SetStatus(203);
+        }else{
+            $this->RegisterVariableString("powerStatus", $this->Translate("varPowerStatus"), '', 1);
+            $this->RegisterVariableFloat("powerActual", $this->Translate("varPowerActual"), "~Watt.3680", 2);
+            $this->RegisterVariableFloat("outputAll", $this->Translate("varOutputAll"), "~Electricity", 3);
+            $this->RegisterVariableFloat("outputDay", $this->Translate("varOutputDay"), "~Electricity", 4);
 
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceFan3', 0, $this->Translate("paDeviceFan-0"), 'Ventilation', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceFan3', 1, $this->Translate("paDeviceFan-1"), 'Speedo-0', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceFan3', 2, $this->Translate("paDeviceFan-2"), 'Speedo-50', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceFan3', 3, $this->Translate("paDeviceFan-3"), 'Speedo-100', -1);
+            $this->RegisterVariableFloat("l1Voltage", $this->Translate("varL1Voltage"), "~Volt", 4);
+            $this->RegisterVariableFloat("l1Power", $this->Translate("varL1Power"), "~Watt.3680", 5);
+            $this->RegisterVariableFloat("l2Voltage", $this->Translate("varL2Voltage"), "~Volt", 6);
+            $this->RegisterVariableFloat("l2Power", $this->Translate("varL2Power"), "~Watt.3680", 7);
+            //$this->RegisterVariableFloat("l3Voltage", $this->Translate("varL3Voltage"), "~Volt", 8);
+            //$this->RegisterVariableFloat("l3Power", $this->Translate("varL3Power"), "~Watt.3680", 9);
 
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceFan5', 0, $this->Translate("paDeviceFan-0"), 'Ventilation', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceFan5', 1, $this->Translate("paDeviceFan-1"), 'Speedo-0', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceFan5', 2, $this->Translate("paDeviceFan-2"), 'Speedo-25', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceFan5', 3, $this->Translate("paDeviceFan-3"), 'Speedo-50', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceFan5', 4, $this->Translate("paDeviceFan-4"), 'Speedo-75', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceFan5', 5, $this->Translate("paDeviceFan-5"), 'Speedo-100', -1);
-
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceFan7', 0, $this->Translate("paDeviceFan-0"), 'Ventilation', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceFan7', 1, $this->Translate("paDeviceFan-1"), 'Speedo-0', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceFan7', 2, $this->Translate("paDeviceFan-2"), 'Speedo-25', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceFan7', 3, $this->Translate("paDeviceFan-3"), 'Speedo-25', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceFan7', 4, $this->Translate("paDeviceFan-4"), 'Speedo-50', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceFan7', 5, $this->Translate("paDeviceFan-5"), 'Speedo-75', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceFan7', 6, $this->Translate("paDeviceFan-6"), 'Speedo-75', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceFan7', 7, $this->Translate("paDeviceFan-7"), 'Speedo-100', -1);
-
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceSwinger', 0, $this->Translate("paDeviceSwinger-0"), '', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceSwinger', 1, $this->Translate("paDeviceSwinger-1"), '', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceSwinger', 2, $this->Translate("paDeviceSwinger-2"), '', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceSwinger', 3, $this->Translate("paDeviceSwinger-3"), '', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceSwinger', 4, $this->Translate("paDeviceSwinger-4"), '', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceSwinger', 5, $this->Translate("paDeviceSwinger-5"), '', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceSwinger', 6, $this->Translate("paDeviceSwinger-6"), '', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceSwinger', 7, $this->Translate("paDeviceSwinger-7"), '', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceSwinger', 8, $this->Translate("paDeviceSwinger-8"), '', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceSwinger', 9, $this->Translate("paDeviceSwinger-9"), '', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceSwinger', 10, $this->Translate("paDeviceSwinger-10"), '', -1);
-            IPS_SetVariableProfileAssociation('Sinclair.DeviceSwinger', 11, $this->Translate("paDeviceSwinger-11"), '', -1);
-
-            IPS_SetVariableProfileValues('Sinclair.SetTemp', 17, 27, 1);
-            IPS_SetVariableProfileText('Sinclair.SetTemp', '', '°C');
-
-            IPS_SetVariableProfileText('Sinclair.ActTemp', '', '°C');
-
-            $this->RegisterVariableString("name", $this->Translate("varName"), '', 1);
-            $this->RegisterVariableBoolean("power", $this->Translate("varPower"), '~Switch', 2);
-            $this->RegisterVariableInteger("mode", $this->Translate("varMode"), 'Sinclair.DeviceMode', 3);
-            $this->RegisterVariableInteger("setTemp", $this->Translate("varSetTemp"), 'Sinclair.SetTemp', 4);
-            $this->RegisterVariableInteger("fan", $this->Translate("varFan"), 'Sinclair.DeviceFan'.$fanSteps, 5);
-            $this->RegisterVariableInteger("swinger", $this->Translate("varSwinger"), 'Sinclair.DeviceSwinger', 6);
-            $this->RegisterVariableInteger("actTemp", $this->Translate("varActTemp"), 'Sinclair.ActTemp', 7);
-            $this->RegisterVariableBoolean("optXFan", $this->Translate("varOptXFan"), '~Switch', 8);
-            $this->RegisterVariableBoolean("optHealth", $this->Translate("varOptHealth"), '~Switch', 9);
-            $this->RegisterVariableBoolean("optLight", $this->Translate("varOptLight"), '~Switch', 10);
-            $this->RegisterVariableBoolean("optSleep", $this->Translate("varOptSleep"), '~Switch', 11);
-            $this->RegisterVariableBoolean("optEco", $this->Translate("varOptEco"), '~Switch', 12);
-            if($hasFreshAir)
-                $this->RegisterVariableBoolean("optAir", $this->Translate("varOptAir"), '~Switch', 13);
-            $this->RegisterVariableString("lastUpdate", $this->Translate("varLastUpdate"), '', 14);
-            $this->RegisterVariableString("macAddress", $this->Translate("varMacAddress"), '', 15);
-            $this->RegisterVariableString("deviceKey", $this->Translate("varDeviceKey"), '', 16);
-            //$this->RegisterVariableInteger("actualCommand", $this->Translate("varActualCommand"), '', 17);
-
-            IPS_SetIcon($this->GetIDForIdent('power'), 'Power');
-            IPS_SetIcon($this->GetIDForIdent('swinger'), 'WindSpeed');
-            IPS_SetIcon($this->GetIDForIdent('setTemp'), 'Temperature');
-            IPS_SetIcon($this->GetIDForIdent('actTemp'), 'Temperature');
-            IPS_SetIcon($this->GetIDForIdent('optXFan'), 'WindDirection');
-            IPS_SetIcon($this->GetIDForIdent('optHealth'), 'Tree');
-            IPS_SetIcon($this->GetIDForIdent('optLight'), 'Light');
-            IPS_SetIcon($this->GetIDForIdent('optSleep'), 'Moon');
-            IPS_SetIcon($this->GetIDForIdent('optEco'), 'Leaf');
-            if($hasFreshAir)
-                IPS_SetIcon($this->GetIDForIdent('optAir'), 'WindDirection');
-            IPS_SetIcon($this->GetIDForIdent('lastUpdate'), 'Repeat');
-            IPS_SetIcon($this->GetIDForIdent('macAddress'), 'Notebook');
-
-            $this->EnableAction("power");
-            $this->EnableAction("mode");
-            $this->EnableAction("fan");
-            $this->EnableAction("swinger");
-            $this->EnableAction("setTemp");
-            $this->EnableAction("optXFan");
-            $this->EnableAction("optHealth");
-            $this->EnableAction("optLight");
-            $this->EnableAction("optSleep");
-            $this->EnableAction("optEco");
-            if($hasFreshAir)
-                $this->EnableAction("optAir");
-
-            IPS_SetHidden($this->GetIDForIdent('deviceKey'), true);
-            //IPS_SetHidden($this->GetIDForIdent('actualCommand'), true);
-
+            $this->RegisterVariableFloat("s1Voltage", $this->Translate("varS1Voltage"), "~Volt", 10);
+            $this->RegisterVariableFloat("s1Current", $this->Translate("varS1Current"), "~Ampere", 11);
+            $this->RegisterVariableFloat("s2Voltage", $this->Translate("varS2Voltage"), "~Volt", 12);
+            $this->RegisterVariableFloat("s2Current", $this->Translate("varS2Current"), "~Ampere", 13);
+            $this->RegisterVariableFloat("s3Voltage", $this->Translate("varS3Voltage"), "~Volt", 14);
+            $this->RegisterVariableFloat("s3Current", $this->Translate("varS3Current"), "~Ampere", 15);
 
             $this->debug('host', $host);
 
@@ -181,385 +83,201 @@ class sinclair extends IPSModule {
             $this->debug('Update Status Interval', $statusInterval.' sec');
 
             $this->SetTimerInterval('status_UpdateTimer', $statusInterval*1000);
-            //SetValueInteger($this->GetIDForIdent('actualCommand'), Commands::none);
-            $this->SetBuffer("actualCommand", Commands::none);
 
             $this->SetStatus(102);
         }
-        else
-        {
-            //Instanz ist aktiv
-            $this->SetStatus(201);
+    }
+
+    public function getStatus()
+    {
+        $host = $this->ReadPropertyString("host");
+        $user = $this->ReadPropertyInteger("user");
+        $password = $this->ReadPropertyBoolean("password");
+        $url = 'http://'.$user.':'.$password.'@'.$host;
+
+        $output = file_get_contents($url, "r");
+
+        if(strpos($output, 'PIKO 8.3') > -1) {
+            $this->parsePiko83($output);
+        }else{
+            $this->parsePikoDxs($host);
         }
     }
 
-    public function GetConfigurationForParent(){
-        $JsonArray = array( "Host" => $this->ReadPropertyString('host'), "Port" => 7000, "Open" => true);
-        $Json = json_encode($JsonArray);
-        return $Json;
+    private function parsePiko83($output){
+        //AC-Leistung_Aktuell
+        $pos1 = strpos($output, "aktuell</td>");
+        $pos2 = strpos($output, "</td>", $pos1 + 20);
+        $data = substr($output, ($pos1 + 65), $pos2 - $pos1 - 65);
+        SetValue($this->GetIDForIdent("powerActual"), $data=="x x x" ? 0 : (float)$data);
+
+        //AC_Leistung_Status
+        $pos1 = strpos($output, "Status</td>");
+        $pos2 = strpos($output, "</td>", $pos1 + 20);
+        $data = substr($output, ($pos1 + 33), $pos2 - $pos1 - 33);
+        SetValue($this->GetIDForIdent("powerStatus"), $data=="x x x" ? 0 : $data);
+
+        //Energie_Gesamtertrag
+        $pos1 = strpos($output, "Gesamtenergie</td>");
+        $pos2 = strpos($output, "</td>", $pos1 + 30);
+        $data = substr($output, ($pos1 + 70), $pos2 - $pos1 - 70);
+        SetValue($this->GetIDForIdent("outputAll"), $data=="x x x" ? 0 : (float)$data);
+
+        //Energie_Tagesertrag_Aktuell
+        $pos1 = strpos($output, "Tagesenergie</td>");
+        $pos2 = strpos($output, "</td>", $pos1 + 20);
+        $data = substr($output, ($pos1 + 70), $pos2 - $pos1 - 70);
+        SetValue($this->GetIDForIdent("outputDay"), $data=="x x x" ? 0 : (float)$data);
+
+        //PV_Generator_String1_Spannung
+        $pos1 = strpos($output, "Spannung</td>", $pos2);
+        $pos2 = strpos($output, "</td>", $pos1 + 20);
+        $data = substr($output, ($pos1 + 66), $pos2 - $pos1 - 66);
+        SetValue($this->GetIDForIdent("s1Voltage"), $data=="x x x" ? 0 : (float)$data);
+
+        //Ausgangsleistung_L1_Spannung
+        $pos1 = strpos($output, "Spannung</td>", $pos2);
+        $pos2 = strpos($output, "</td>", $pos1 + 20);
+        $data = substr($output, ($pos1 + 66), $pos2 - $pos1 - 66);
+        SetValue($this->GetIDForIdent("l1Voltage"), $data=="x x x" ? 0 : (float)$data);
+
+        //PV_Generator_String1_Strom
+        $pos1 = strpos($output, "Strom</td>", $pos2);
+        $pos2 = strpos($output, "</td>", $pos1 + 20);
+        $data = substr($output, ($pos1 + 63), $pos2 - $pos1 - 63);
+        SetValue($this->GetIDForIdent("s1Current"), $data=="x x x" ? 0 : (float)$data);
+
+        //Ausgangsleistung_L1_Leistung
+        $pos1 = strpos($output, "Leistung</td>", $pos2);
+        $pos2 = strpos($output, "</td>", $pos1 + 20);
+        $data = substr($output, ($pos1 + 66), $pos2 - $pos1 - 66);
+        SetValue($this->GetIDForIdent("l1Power"), $data=="x x x" ? 0 : (float)$data);
+
+        //PV_Generator_String2_Spannung
+        $pos1 = strpos($output, "Spannung</td>", $pos2);
+        $pos2 = strpos($output, "</td>", $pos1 + 20);
+        $data = substr($output, ($pos1 + 66), $pos2 - $pos1 - 66);
+        SetValue($this->GetIDForIdent("s2Voltage"), $data=="x x x" ? 0 : (float)$data);
+
+        //Ausgangsleistung_L2_Spannung
+        $pos1 = strpos($output, "Spannung</td>", $pos2);
+        $pos2 = strpos($output, "</td>", $pos1 + 20);
+        $data = substr($output, ($pos1 + 66), $pos2 - $pos1 - 66);
+        SetValue($this->GetIDForIdent("l2Voltage"), $data=="x x x" ? 0 : (float)$data);
+
+        //PV_Generator_String2_Strom
+        $pos1 = strpos($output, "Strom</td>", $pos2);
+        $pos2 = strpos($output, "</td>", $pos1 + 20);
+        $data = substr($output, ($pos1 + 63), $pos2 - $pos1 - 63);
+        SetValue($this->GetIDForIdent("s2Current"), $data=="x x x" ? 0 : (float)$data);
+
+        //Ausgangsleistung_L2_Leistung
+        $pos1 = strpos($output, "Leistung</td>", $pos2);
+        $pos2 = strpos($output, "</td>", $pos1 + 20);
+        $data = substr($output, ($pos1 + 66), $pos2 - $pos1 - 66);
+        SetValue($this->GetIDForIdent("l2Power"), $data=="x x x" ? 0 : (float)$data);
+
+        //PV_Generator_String3_Spannung
+        $pos1 = strpos($output, "Spannung</td>", $pos2);
+        $pos2 = strpos($output, "</td>", $pos1 + 20);
+
+        //Ausgangsleistung_L3_Spannung
+        $pos1 = strpos($output, "Spannung</td>", $pos2);
+        $pos2 = strpos($output, "</td>", $pos1 + 20);
+        $data = substr($output, ($pos1 + 66), $pos2 - $pos1 - 66);
+        SetValue($this->GetIDForIdent("l3Voltage"), $data=="x x x" ? 0 : (float)$data);
+
+        //PV_Generator_String3_Strom
+        $pos1 = strpos($output, "Strom</td>", $pos2);
+        $pos2 = strpos($output, "</td>", $pos1 + 20);
+
+        //Ausgangsleistung_L3_Leistung
+        $pos1 = strpos($output, "Leistung</td>", $pos2);
+        $pos2 = strpos($output, "</td>", $pos1 + 20);
+        $data = substr($output, ($pos1 + 66), $pos2 - $pos1 - 66);
+        SetValue($this->GetIDForIdent("l3Power"), $data=="x x x" ? 0 : (float)$data);
     }
 
-    public function RequestAction($Ident, $Value) {
-        $this->debug('RequestAction', $Ident.': '.$Value);
-        switch($Ident) {
-            case 'power':
-                $this->setPower($Value);
-                break;
-            case 'mode':
-                $this->setMode($Value);
-                break;
-            case 'fan':
-                $this->setFan($Value);
-                break;
-            case 'swinger':
-                $this->setSwinger($Value);
-                break;
-            case 'setTemp':
-                $this->setTemp($Value);
-                break;
-            case 'optXFan':
-                $this->setOptXFan($Value);
-                break;
-            case 'optHealth':
-                $this->setOptHealth($Value);
-                break;
-            case 'optLight':
-                $this->setOptLight($Value);
-                break;
-            case 'optSleep':
-                $this->setOptSleep($Value);
-                break;
-            case 'optEco':
-                $this->setOptEco($Value);
-                break;
-            case 'optAir':
-                $this->setOptAir($Value);
-                break;
-            default:
-                throw new Exception("Invalid ident");
-        }
+    private function parsePikoDxs($host){
+        $url = 'http://'.$host.'/api/dxs.json?';
+        $url .= 'dxsEntries='.dxsEntry::powerStatus.'&';
+        $url .= 'dxsEntries='.dxsEntry::powerActual.'&';
+        $url .= 'dxsEntries='.dxsEntry::outputAll.'&';
+        $url .= 'dxsEntries='.dxsEntry::outputDay.'&';
+        $url .= 'dxsEntries='.dxsEntry::l1Voltage.'&';
+        $url .= 'dxsEntries='.dxsEntry::l1Power.'&';
+        $url .= 'dxsEntries='.dxsEntry::l2Voltage.'&';
+        $url .= 'dxsEntries='.dxsEntry::l2Power.'&';
+        $url .= 'dxsEntries='.dxsEntry::l3Voltage.'&';
+        $url .= 'dxsEntries='.dxsEntry::l3Power.'&';
+        $url .= 'dxsEntries='.dxsEntry::s1Voltage.'&';
+        $url .= 'dxsEntries='.dxsEntry::s1Current.'&';
+        $url .= 'dxsEntries='.dxsEntry::s2Voltage.'&';
+        $url .= 'dxsEntries='.dxsEntry::s2Current.'&';
+        $url .= 'dxsEntries='.dxsEntry::s3Voltage.'&';
+        $url .= 'dxsEntries='.dxsEntry::s3Current;
 
-    }
+        $output = file_get_contents($url, "r");
+        $arr = json_decode($output, true);
 
-    public function ReceiveData($JSONString){
-        $this->debug('ReceiveData', $JSONString);
-        //$actCmd = GetValueInteger($this->GetIDForIdent('actualCommand'));
-        $actCmd = $this->GetBuffer('actualCommand');
-        $this->resetCmd();
-
-        $recObj = json_decode($JSONString);
-        $bufferObj = json_decode($recObj->Buffer);
-        $key = $actCmd < Commands::status ? self::defaultCryptKey : GetValueString($this->GetIDForIdent('deviceKey'));
-        $decrypted = $this->decrpyt($bufferObj->pack, $key);
-        $decObj = json_decode($decrypted);
-
-        $this->debug('Pack decrypted', $decrypted);
-
-        switch($actCmd){
-            case Commands::scan:
-                $mac = strtoupper(implode(':', str_split($decObj->mac, 2)));
-                SetValueString($this->GetIDForIdent('macAddress'), $mac);
-                SetValueString($this->GetIDForIdent('name'), $decObj->name);
-
-                $this->debug('AC MAC', $mac);
-                $this->debug('AC Name', $decObj->name);
-
-                $this->deviceBind();
-                break;
-            case Commands::bind:
-                SetValueString($this->GetIDForIdent('deviceKey'), $decObj->key);
-
-                $this->debug('AC DeviceKey', $decObj->key);
-                break;
-            case Commands::status:
-                $this->parseStatus($decObj->cols, $decObj->dat);
-
-                SetValueString($this->GetIDForIdent('lastUpdate'), date("Y-m-d H:i:s"));
-                break;
-            case Commands::cmd:
-                $this->parseStatus($decObj->opt, $decObj->p);
-                break;
-        }
-    }
-
-    private function sendCommand($type, $cmdArr){
-        $this->SetBuffer('actualCommand', $type);
-
-        $this->SendDataToParent(json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => json_encode($cmdArr))));
-
-        return true;
-    }
-
-
-    public function resetCmd(){
-        $this->SetBuffer('actualCommand', Commands::none);
-    }
-
-    public function initDevice(){
-        $arr = array('t' => 'scan');
-        $this->sendCommand(Commands::scan, $arr);
-    }
-    private function deviceBind(){
-        $pack = array(
-            't' => 'bind',
-            'uid' => 0,
-            'mac' => $this->getMacUnformatted()
-        );
-        $this->sendCommand(Commands::bind, $this->getRequest($pack, true));
-    }
-    public function getStatus(){
-        //TODO wenn kein device key -> init
-
-        $cols = array();
-        $cols[] = DeviceParam::Power;
-        $cols[] = DeviceParam::Mode;
-        $cols[] = DeviceParam::SetTemperature;
-        $cols[] = DeviceParam::ActTemperature;
-        $cols[] = DeviceParam::Fanspeed;
-        $cols[] = DeviceParam::Swinger;
-        if($this->ReadPropertyBoolean("freshAir"))
-            $cols[] = DeviceParam::OptAir;
-        $cols[] = DeviceParam::OptXFan;
-        $cols[] = DeviceParam::OptEco;
-        $cols[] = DeviceParam::OptHealth;
-        $cols[] = DeviceParam::OptLight;
-        $cols[] = DeviceParam::OptSleep1;
-
-        $pack = array(
-            't' => 'status',
-            'mac' => $this->getMacUnformatted(),
-            'cols' => $cols
-        );
-        $this->sendCommand(Commands::status, $this->getRequest($pack, false));
-    }
-
-
-    public function setPower(bool $newVal){
-        $cmd = $this->getCommand(array(DeviceParam::Power, DeviceParam::OptSleep1, DeviceParam::OptSleep2, DeviceParam::OptAir), array($newVal ? 1 : 0, 0, 0, 0));
-        $this->sendCommand(Commands::cmd, $this->getRequest($cmd, false));
-    }
-    public function setMode(int $newVal){
-        $cmd = $this->getCommand(array(DeviceParam::Mode), array($newVal));
-        $this->sendCommand(Commands::cmd, $this->getRequest($cmd, false));
-    }
-    public function setFan(int $newVal){
-        $cmd = $this->getCommand(array(DeviceParam::Fanspeed, "Quiet", "Tur"), array($newVal, 0, 0));
-        $this->sendCommand(Commands::cmd, $this->getRequest($cmd, false));
-    }
-    public function setSwinger(int $newVal){
-        $cmd = $this->getCommand(array(DeviceParam::Swinger), array($newVal));
-        $this->sendCommand(Commands::cmd, $this->getRequest($cmd, false));
-    }
-    public function setTemp(int $newVal){
-        $cmd = $this->getCommand(array(DeviceParam::SetTemperature), array($newVal));
-        $this->sendCommand(Commands::cmd, $this->getRequest($cmd, false));
-    }
-    public function setOptXFan(bool $newVal){
-        $cmd = $this->getCommand(array(DeviceParam::OptXFan), array($newVal ? 1 : 0));
-        $this->sendCommand(Commands::cmd, $this->getRequest($cmd, false));
-    }
-    public function setOptHealth(bool $newVal){
-        $cmd = $this->getCommand(array(DeviceParam::OptHealth), array($newVal ? 1 : 0));
-        $this->sendCommand(Commands::cmd, $this->getRequest($cmd, false));
-    }
-    public function setOptLight(bool $newVal){
-        $cmd = $this->getCommand(array(DeviceParam::OptLight), array($newVal ? 1 : 0));
-        $this->sendCommand(Commands::cmd, $this->getRequest($cmd, false));
-    }
-    public function setOptSleep(bool $newVal){
-        $cmd = $this->getCommand(array(DeviceParam::OptSleep1, DeviceParam::OptSleep2), array($newVal ? 1 : 0, $newVal ? 1 : 0));
-        $this->sendCommand(Commands::cmd, $this->getRequest($cmd, false));
-    }
-    public function setOptEco(bool $newVal){
-        $cmd = $this->getCommand(array(DeviceParam::OptEco), array($newVal ? 1 : 0));
-        $this->sendCommand(Commands::cmd, $this->getRequest($cmd, false));
-    }
-    public function setOptAir(bool $newVal){
-        $cmd = $this->getCommand(array(DeviceParam::OptAir), array($newVal ? 1 : 0));
-        $this->sendCommand(Commands::cmd, $this->getRequest($cmd, false));
-    }
-
-
-    private function parseStatus($cols, $dats){
-        for($i=0;$i<count($cols);$i++){
-            switch($cols[$i]){
-                case DeviceParam::Power:
-                    SetValueBoolean($this->GetIDForIdent('power'), $dats[$i]!=0 ? true : false);
+        foreach($arr['dxsEntries'] as $entry){
+            switch($entry['dxsId']){
+                case dxsEntry::powerStatus:
+                    SetValue($this->GetIDForIdent("powerStatus"), ($entry['value']));
                     break;
-                case DeviceParam::Mode:
-                    SetValueInteger($this->GetIDForIdent('mode'), $dats[$i]);
+                case dxsEntry::powerActual:
+                    SetValue($this->GetIDForIdent("powerActual"), floatval($entry['value']));
                     break;
-                case DeviceParam::Fanspeed:
-                    SetValueInteger($this->GetIDForIdent('fan'), $dats[$i]);
+                case dxsEntry::outputAll:
+                    SetValue($this->GetIDForIdent("outputAll"), floatval($entry['value']));
                     break;
-                case DeviceParam::Swinger:
-                    SetValueInteger($this->GetIDForIdent('swinger'), $dats[$i]);
+                case dxsEntry::outputDay:
+                    SetValue($this->GetIDForIdent("outputDay"), floatval($entry['value'])/1000);
                     break;
-                case DeviceParam::SetTemperature:
-                    SetValueInteger($this->GetIDForIdent('setTemp'), $dats[$i]);
+                case dxsEntry::l1Voltage:
+                    SetValue($this->GetIDForIdent("l1Voltage"), floatval($entry['value']));
                     break;
-                case DeviceParam::ActTemperature:
-                    SetValueInteger($this->GetIDForIdent('actTemp'), $dats[$i]-40);
+                case dxsEntry::l1Power:
+                    SetValue($this->GetIDForIdent("l1Power"), floatval($entry['value']));
                     break;
-                case DeviceParam::OptXFan:
-                    SetValueBoolean($this->GetIDForIdent('optXFan'), $dats[$i]!=0 ? true : false);
+                case dxsEntry::l2Voltage:
+                    SetValue($this->GetIDForIdent("l2Voltage"), floatval($entry['value']));
                     break;
-                case DeviceParam::OptHealth:
-                    SetValueBoolean($this->GetIDForIdent('optHealth'), $dats[$i]!=0 ? true : false);
+                case dxsEntry::l2Power:
+                    SetValue($this->GetIDForIdent("l2Power"), floatval($entry['value']));
                     break;
-                case DeviceParam::OptLight:
-                    SetValueBoolean($this->GetIDForIdent('optLight'), $dats[$i]!=0 ? true : false);
+                case dxsEntry::l3Voltage:
+                    SetValue($this->GetIDForIdent("l3Voltage"), floatval($entry['value']));
                     break;
-                case DeviceParam::OptSleep1:
-                case DeviceParam::OptSleep2:
-                    SetValueBoolean($this->GetIDForIdent('optSleep'), $dats[$i]!=0 ? true : false);
+                case dxsEntry::l3Power:
+                    SetValue($this->GetIDForIdent("l3Power"), floatval($entry['value']));
                     break;
-                case DeviceParam::OptEco:
-                    SetValueBoolean($this->GetIDForIdent('optEco'), $dats[$i]!=0 ? true : false);
+                case dxsEntry::s1Voltage:
+                    SetValue($this->GetIDForIdent("s1Voltage"), floatval($entry['value']));
                     break;
-                case DeviceParam::OptAir:
-                    if($this->ReadPropertyBoolean("freshAir"))
-                        SetValueBoolean($this->GetIDForIdent('optAir'), $dats[$i]!=0 ? true : false);
+                case dxsEntry::s1Current:
+                    SetValue($this->GetIDForIdent("s1Current"), floatval($entry['value']));
                     break;
+                case dxsEntry::s2Voltage:
+                    SetValue($this->GetIDForIdent("s2Voltage"), floatval($entry['value']));
+                    break;
+                case dxsEntry::s2Current:
+                    SetValue($this->GetIDForIdent("s2Current"), floatval($entry['value']));
+                    break;
+                //case dxsEntry::s3Voltage:
+                //    SetValue($this->GetIDForIdent("s3Voltage"), floatval($entry['value']));
+                //    break;
+                //case dxsEntry::s3Current:
+                //    SetValue($this->GetIDForIdent("s3Current"), floatval($entry['value']));
+                //    break;
             }
         }
     }
 
-    private function getRequest($pack, $bDefKey=true){
-        $key = $bDefKey ? self::defaultCryptKey : GetValueString($this->GetIDForIdent('deviceKey'));
-
-        $arr = array(
-            'cid' => 'app',
-            'i' => $bDefKey ? 1 : 0,
-            'pack' => $this->encrypt(json_encode($pack), $key),
-            't' => 'pack',
-            'tcid' => $this->getMacUnformatted(),
-            'uid' => 22130
-        );
-
-        return $arr;
-    }
-    private function getCommand($opts, $vals){
-        $cmd = array(
-            't' => 'cmd',
-            'opt' => $opts,
-            'p' => $vals
-        );
-
-        return $cmd;
-    }
-    private function getMacUnformatted(){
-        $mac = GetValueString($this->GetIDForIdent('macAddress'));
-        $mac = strtolower(str_replace(':', '', $mac));
-
-        return $mac;
-    }
-
-    private function decrpyt( $message, $key ){
-        if($key == '')
-            $key = self::defaultCryptKey;
-
-        $decrypt = openssl_decrypt(
-            base64_decode( $message ),
-            "aes-128-ecb",
-            $key,
-            OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING
-        );
-
-        // remove zero padding
-        $decrypt = rtrim( $decrypt, "\x00" );
-        // remove PKCS #7 padding
-        $decrypt_len = strlen( $decrypt );
-        $decrypt_padchar = ord( $decrypt[ $decrypt_len - 1 ] );
-        for ( $i = 0; $i < $decrypt_padchar ; $i++ )
-        {
-            if ( $decrypt_padchar != ord( $decrypt[$decrypt_len - $i - 1] ) )
-                break;
-        }
-        if ( $i != $decrypt_padchar )
-            return $decrypt;
-        else
-            return substr(
-                $decrypt,
-                0,
-                $decrypt_len - $decrypt_padchar
-            );
-    }
-    private function encrypt( $message, $key ){
-        if($key == '')
-            $key = self::defaultCryptKey;
-
-        $blocksize = 16;
-        $encrypt_padchar = $blocksize - ( strlen( $message ) % $blocksize );
-        $message .= str_repeat( chr( $encrypt_padchar ), $encrypt_padchar );
-
-        return base64_encode(
-            openssl_encrypt(
-                $message,
-                "aes-128-ecb",
-                $key,
-                OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING
-            )
-        );
-    }
 
     private function debug($name, $data){
         if(self::debug)
             $this->SendDebug($name, $data, 0);
-    }
-
-
-    /**
-     * Check if a parent is active
-     * @param $id integer InstanceID
-     * @return bool
-     */
-    protected function HasActiveParent($id = 0)
-    {
-        if ($id == 0) $id = $this->InstanceID;
-        $parent = $this->GetParent($id);
-        if ($parent > 0) {
-            $status = $this->GetInstanceStatus($parent);
-            if ($status == 102) {
-                return true;
-            } else {
-                //IPS_SetInstanceStatus($id, self::ST_NOPARENT);
-                $this->debug(__FUNCTION__, "Parent not active for Instance #" . $id);
-                return false;
-            }
-        }
-        $this->debug(__FUNCTION__, "No Parent for Instance #" . $id);
-        return false;
-    }
-    //------------------------------------------------------------------------------
-    /**
-     * Check if a parent for Instance $id exists
-     * @param $id integer InstanceID
-     * @return integer
-     */
-    protected function GetParent($id = 0)
-    {
-        $parent = 0;
-        if ($id == 0) $id = $this->InstanceID;
-        if (IPS_InstanceExists($id)) {
-            $instance = IPS_GetInstance($id);
-            $parent = $instance['ConnectionID'];
-        } else {
-            $this->debug(__FUNCTION__, "Instance #$id doesn't exists");
-        }
-        return $parent;
-    }
-//------------------------------------------------------------------------------
-    /**
-     * Retrieve instance status
-     * @param int $id
-     * @return mixed
-     */
-    protected function GetInstanceStatus($id = 0)
-    {
-        if ($id == 0) $id = $this->InstanceID;
-        $inst = IPS_GetInstance($id);
-        return $inst['InstanceStatus'];
     }
 }
 ?>
