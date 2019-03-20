@@ -48,8 +48,8 @@ class kostalPico extends IPSModule {
         parent::ApplyChanges();
 
         $host = $this->ReadPropertyString("host");
-        $user = $this->ReadPropertyInteger("user");
-        $password = $this->ReadPropertyBoolean("password");
+        $user = $this->ReadPropertyString("user");
+        $password = $this->ReadPropertyString("password");
 
         if(strlen($host) == 0){
             $this->SetStatus(201);
