@@ -22,7 +22,7 @@
       "varS1Current": "String 1 Strom",
       "varS2Voltage": "String 2 Spannung",
       "varS2Current": "String 2 Strom",
-      "varS3Voltageage": "String 3 Spannung",
+      "varS3Voltage": "String 3 Spannung",
       "varS3Current": "String 3 Strom"
     },
     "en": {
