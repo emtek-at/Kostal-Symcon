@@ -1,0 +1,27 @@
+{
+  "elements":
+  [
+    { "type":  "Select", "name": "model", "caption": "formModel",
+      "options": [
+        { "caption": "Piko 5.5", "value": "p55" },
+        { "caption": "Piko 8.3", "value": "p83" },
+        { "caption": "Piko 12", "value": "p12" }
+      ]},
+    { "type": "ValidationTextBox", "name": "host", "caption": "formHost" },
+    { "type": "ValidationTextBox", "name": "user", "caption": "formUser" },
+    { "type": "PasswordTextBox", "name": "password", "caption": "formPassword" },
+    { "type": "NumberSpinner", "name": "statusTimer", "caption": "formStatusTimer" }
+  ],
+  "actions":
+  [
+    { "type": "Button", "label": "get Status", "onClick": "KostalP_getStatus($id);" }
+  ],
+  "status":
+  [
+    { "code": 101, "icon": "active", "caption": "valid" },
+    { "code": 201, "icon": "error", "caption": "form201" },
+    { "code": 202, "icon": "error", "caption": "form202" },
+    { "code": 203, "icon": "error", "caption": "form203" },
+    { "code": 203, "icon": "error", "caption": "form204" }
+  ]
+}

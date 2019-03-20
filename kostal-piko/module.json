@@ -1,0 +1,11 @@
+{
+  "id": "{EACA26B9-4FE9-A1F2-33A4-DFDB829B1A1C}",
+  "name": "kostalPico",
+  "type": 3,
+  "vendor": "Kostal",
+  "aliases": [ "Piko 5.5", "Piko 8.3", "Piko 12"],
+  "parentRequirements": [],
+  "childRequirements": [],
+  "implemented": [],
+  "prefix": "KostalP"
+}
