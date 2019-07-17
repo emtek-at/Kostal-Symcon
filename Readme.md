@@ -46,9 +46,10 @@ Passwort        | Passwort für das Webinterface
 getStatus Intervall Sek. | Aktualisierungs Intervall
 
 
+
 ### 5. Statusvariablen und Profile
 
-Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
+Die Statusvariablen werden automatisch je nach Model angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
 Es werden lediglich die Werte aus dem Webinterface abgerufen und konvertiert aber nicht auf Plausibilität geprüft.
 
 Name               | Typ       | Beschreibung
