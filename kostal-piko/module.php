@@ -488,4 +488,3 @@ class kostalPico extends IPSModule {
             $this->SendDebug($name, $data, 0);
     }
 }
-?>
