@@ -35,7 +35,7 @@ class kostalPico extends IPSModule {
         // Diese Zeile nicht löschen.
         parent::Create();
 
-        $this->RegisterPropertyString("model", "");
+        $this->RegisterPropertyString("model", "p55");
         $this->RegisterPropertyString("host", "");
         $this->RegisterPropertyString("user", "");
         $this->RegisterPropertyString("password", "");
