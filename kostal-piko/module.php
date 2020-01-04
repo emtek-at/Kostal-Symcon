@@ -20,7 +20,7 @@ abstract class dxsEntry
 }
 
 // Klassendefinition
-class KostalWechselrichter extends IPSModule {
+class kostalPico extends IPSModule {
     const debug = false;
 
     // Der Konstruktor des Moduls
