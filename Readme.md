@@ -30,7 +30,7 @@ Das Original modul wurde von [emtek-at] (https://github.com/emtek-at/Kostal-Symc
 ### 3. Software-Installation
 
 Über das Modul-Control folgende URL hinzufügen.  
-`https://github.com/emtek-at/Kostal-Symcon`  
+`https://github.com/crazy-sonic/Kostal-Symcon`  
 
 
 ### 4. Einrichten der Instanzen in IP-Symcon
