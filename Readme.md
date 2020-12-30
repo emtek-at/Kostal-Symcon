@@ -1,11 +1,13 @@
 # Symcon Kostal Modul
 Modul um Kostal Wechselrichter abzufragen.
 Unterstützte Modelle:
+- Piko 3.0
 - Piko 5.5
 - Piko 8.3
 - Piko 12
 
 Für die Modelle Piko 5.5 und 8.3 sind Teile aus [hermanthegerman2's Modul](https://github.com/hermanthegerman2/KostalPiko) benutzt worden.
+Das Original modul wurde von [emtek-at] (https://github.com/emtek-at/Kostal-Symcon) bezogen und geforked.
 
 
 ### Inhaltverzeichnis
@@ -28,7 +30,7 @@ Für die Modelle Piko 5.5 und 8.3 sind Teile aus [hermanthegerman2's Modul](http
 ### 3. Software-Installation
 
 Über das Modul-Control folgende URL hinzufügen.  
-`https://github.com/emtek-at/Kostal-Symcon`  
+`https://github.com/crazy-sonic/Kostal-Symcon`  
 
 
 ### 4. Einrichten der Instanzen in IP-Symcon

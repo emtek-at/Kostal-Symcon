@@ -3,6 +3,7 @@
   [
     { "type":  "Select", "name": "model", "caption": "formModel",
       "options": [
+        { "caption": "Piko 3.0", "value": "p30" },
         { "caption": "Piko 5.5", "value": "p55" },
         { "caption": "Piko 8.3", "value": "p83" },
         { "caption": "Piko 12", "value": "p12" }

@@ -3,7 +3,7 @@
   "name": "kostalPico",
   "type": 3,
   "vendor": "Kostal",
-  "aliases": [ "Piko 5.5", "Piko 8.3", "Piko 12"],
+  "aliases": [ "Piko 3.0", "Piko 5.5", "Piko 8.3", "Piko 12"],
   "parentRequirements": [],
   "childRequirements": [],
   "implemented": [],

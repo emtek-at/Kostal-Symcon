@@ -35,10 +35,10 @@ class kostalPico extends IPSModule {
         // Diese Zeile nicht löschen.
         parent::Create();
 
-        $this->RegisterPropertyString("model", "p55");
+        $this->RegisterPropertyString("model", "p30");
         $this->RegisterPropertyString("host", "");
-        $this->RegisterPropertyString("user", "");
-        $this->RegisterPropertyString("password", "");
+        $this->RegisterPropertyString("user", "pvserver");
+        $this->RegisterPropertyString("password", "pvwr");
         $this->RegisterPropertyInteger("statusTimer", 15);
 
         $this->RegisterTimer("status_UpdateTimer", 0, 'KostalP_getStatus($_IPS[\'TARGET\']);');
@@ -58,9 +58,9 @@ class kostalPico extends IPSModule {
             $this->SetStatus(201);
         }else if(strlen($host) == 0){
             $this->SetStatus(202);
-        }else if(strlen($user) == 0 && ($model == 'p55' || $model == 'p83')){
+        }else if(strlen($user) == 0 && ($model == 'p55' || $model == 'p83' || $model == 'p30')){
             $this->SetStatus(203);
-        }else if(strlen($password) == 0 && ($model == 'p55' || $model == 'p83')){
+        }else if(strlen($password) == 0 && ($model == 'p55' || $model == 'p83' || $model == 'p30')){
             $this->SetStatus(204);
         }else{
             $this->RegisterVariableString("powerStatus", $this->Translate("varPowerStatus"), '', 1);
@@ -114,6 +114,9 @@ class kostalPico extends IPSModule {
         $model = $this->ReadPropertyString("model");
 
         switch($model){
+            case 'p30':
+                $this->parsePiko30();
+                break;
             case 'p55':
                 $this->parsePiko55();
                 break;
@@ -162,6 +165,65 @@ class kostalPico extends IPSModule {
         }
     }
 
+    private function parsePiko30(){
+        /*
+         * function is from https://github.com/hermanthegerman2/KostalPiko
+         */
+        $host = $this->ReadPropertyString("host");
+        $user = $this->ReadPropertyString("user");
+        $password = $this->ReadPropertyString("password");
+        $url = 'http://'.$user.':'.$password.'@'.$host;
+
+        $output = file_get_contents($url, "r");
+
+        //AC-Leistung_Aktuell
+        $pos1 = strpos($output, "aktuell</td>");
+        $pos2 = strpos($output, "&nbsp;</td>", $pos1 + 20);
+        $data = substr($output, ($pos1 + 61), $pos2 - $pos1 - 61);
+        SetValue($this->GetIDForIdent("powerActual"), $data=="x x x" ? 0 : (float)$data);
+
+        //AC_Leistung_Status
+        $pos1 = strpos($output, "Status</td>");
+        $pos2 = strpos($output, "</td>", $pos1 + 17);
+        $data = substr($output, ($pos1 + 29), $pos2 - $pos1 - 29);
+        SetValue($this->GetIDForIdent("powerStatus"), $data=="x x x" ? 0 : $data);
+
+        //Energie_Gesamtertrag
+        $pos1 = strpos($output, "Gesamtenergie</td>");
+        $pos2 = strpos($output, "</td>", $pos1 + 30);
+        $data = substr($output, ($pos1 + 67), $pos2 - $pos1 - 67);
+        SetValue($this->GetIDForIdent("outputAll"), $data=="x x x" ? 0 : (float)$data);
+
+        //Energie_Tagesertrag_Aktuell
+        $pos1 = strpos($output, "Tagesenergie</td>");
+        $pos2 = strpos($output, "</td>", $pos1 + 20);
+        $data = substr($output, ($pos1 + 66), $pos2 - $pos1 - 66);
+        SetValue($this->GetIDForIdent("outputDay"), $data=="x x x" ? 0 : (float)$data);
+
+        //PV_Generator_String1_Spannung
+        $pos1 = strpos($output, "Spannung</td>", $pos2);
+        $pos2 = strpos($output, "</td>", $pos1 + 20);
+        $data = substr($output, ($pos1 + 64), $pos2 - $pos1 - 64);
+        SetValue($this->GetIDForIdent("s1Voltage"), $data=="x x x" ? 0 : (float)$data);
+
+        //Ausgangsleistung_L1_Spannung
+        $pos1 = strpos($output, "Spannung</td>", $pos2);
+        $pos2 = strpos($output, "</td>", $pos1 + 20);
+        $data = substr($output, ($pos1 + 64), $pos2 - $pos1 - 64);
+        SetValue($this->GetIDForIdent("l1Voltage"), $data=="x x x" ? 0 : (float)$data);
+
+        //PV_Generator_String1_Strom
+        $pos1 = strpos($output, "Strom</td>", $pos2);
+        $pos2 = strpos($output, "</td>", $pos1 + 20);
+        $data = substr($output, ($pos1 + 61), $pos2 - $pos1 - 61);
+        SetValue($this->GetIDForIdent("s1Current"), $data=="x x x" ? 0 : (float)$data);
+
+        //Ausgangsleistung_L1_Leistung
+        $pos1 = strpos($output, "Leistung</td>", $pos2);
+        $pos2 = strpos($output, "</td>", $pos1 + 20);
+        $data = substr($output, ($pos1 + 64), $pos2 - $pos1 - 64);
+        SetValue($this->GetIDForIdent("l1Power"), $data=="x x x" ? 0 : (float)$data);
+    }
     private function parsePiko55(){
         /*
          * function is from https://github.com/hermanthegerman2/KostalPiko
@@ -451,6 +513,9 @@ class kostalPico extends IPSModule {
         $val = 0;
 
         switch($model = $this->ReadPropertyString("model")){
+            case 'p30':
+                $val = 1;
+                break;
             case 'p55':
                 $val = 3;
                 break;
@@ -468,6 +533,9 @@ class kostalPico extends IPSModule {
         $val = 0;
 
         switch($model = $this->ReadPropertyString("model")){
+            case 'p30':
+                $val = 1;
+                break;
             case 'p55':
                 $val = 3;
                 break;
